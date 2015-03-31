@@ -1,5 +1,5 @@
-package sourceit.algorithm.implementation;
-import sourceit.algorithm.interfaces.CalculationStrategy;
+package Calc.algorithm.implementation;
+import Calc.algorithm.interfaces.CalculationStrategy;
 
 import java.util.LinkedList;
 /**
@@ -46,8 +46,8 @@ public class PolishStrategy implements CalculationStrategy {
 
                     //there should be the condition for equal and different currencies, but i deleted the code i had,
                     // because it was written in midnight ravings (( and anyway didn't work
-                    // disallow: $ +- number, ª +- number, $ +-*/ ª, $ +-*/ $, ª +-*/ ª
-                    // allow: $ +- $, ª +- ª, $ */ number, ª*/ number
+                    // disallow: $ +- number, ï¿½ +- number, $ +-*/ ï¿½, $ +-*/ $, ï¿½ +-*/ ï¿½
+                    // allow: $ +- $, ï¿½ +- ï¿½, $ */ number, ï¿½*/ number
 
                 }
                 numbers.add(Double.parseDouble(value.toString()));
@@ -74,7 +74,7 @@ public class PolishStrategy implements CalculationStrategy {
         return c == '.';
     }
     private boolean isCurrency(char c) {
-        return c == '$' || c == 'ª';
+        return c == '$' || c == 'ï¿½';
     }
 
 
