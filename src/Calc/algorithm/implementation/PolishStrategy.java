@@ -7,22 +7,15 @@ import java.util.LinkedList;
  */
 public class PolishStrategy implements CalculationStrategy {
     @Override
-    public String calculate(String expression) {
+    public String calculate(String expression)  throws Exception{
         LinkedList<Double> numbers = new LinkedList<>();
         LinkedList<Character> operators = new LinkedList<>();
-        LinkedList<String> currencies = new LinkedList<>();//2 currencies usd + euro
+        LinkedList<String> currencies = new LinkedList<>();//2 currencies $ + €
 
         for (int i = 0; i < expression.length(); i++) {
             char currentChar = expression.charAt(i);
 
-            if (isPoint(currentChar)) {
-                continue;
-            }
-
             if (isDelimiter(currentChar)) {
-                continue;
-            }
-            if (isCurrency(currentChar)){
                 continue;
             }
 
@@ -39,18 +32,28 @@ public class PolishStrategy implements CalculationStrategy {
                     processOperator(numbers, operators.removeLast());
                 }
                 operators.add(currentChar);
+            } else if (currentChar == '$') {
+                currencies.add("$");
+            } else if (currentChar == '€') {
+                currencies.add("€");
+                StringBuilder currency = new StringBuilder();
+                while (i < expression.length() && Character.isLetter(expression.charAt(i))) {
+                    currency.append(expression.charAt(i++));
+                }
+                if ("eur".equals(currency.toString())) {
+                    currencies.add(currency.toString());
+                    --i;
+                } else {
+                    throw new Exception("Error: incorrect expression");
+                }
             } else {
+
                 StringBuilder value = new StringBuilder();
-                while (i < expression.length() && (Character.isDigit(currentChar)) || (isCurrency(currentChar))|| (isPoint(currentChar)) ){
+                while (i < expression.length() && (Character.isDigit(currentChar)) || (isCurrency(currentChar)) || (isPoint(currentChar))) {
                     value.append(expression.charAt(i++));
-
-                    //there should be the condition for equal and different currencies, but i deleted the code i had,
-                    // because it was written in midnight ravings (( and anyway didn't work
-                    // disallow: $ +- number, � +- number, $ +-*/ �, $ +-*/ $, � +-*/ �
-                    // allow: $ +- $, � +- �, $ */ number, �*/ number
-
                 }
                 numbers.add(Double.parseDouble(value.toString()));
+
                 --i;
             }
         }
@@ -58,10 +61,12 @@ public class PolishStrategy implements CalculationStrategy {
         while (!operators.isEmpty()) {
             processOperator(numbers, operators.removeLast());
         }
-
-        return String.valueOf(numbers.getFirst()+(currencies.getLast()));
+        if (currencies.getFirst().equals("null")) {
+            return String.valueOf(numbers.getFirst());
+        } else {
+            return String.valueOf(numbers.getFirst()) + currencies.getFirst();
+        }
     }
-
 
     private boolean isDelimiter(char c) {
         return c == ' ';
@@ -74,7 +79,7 @@ public class PolishStrategy implements CalculationStrategy {
         return c == '.';
     }
     private boolean isCurrency(char c) {
-        return c == '$' || c == '�';
+        return c == '$' || c == '€';
     }
 
 
@@ -112,6 +117,12 @@ public class PolishStrategy implements CalculationStrategy {
 
 
     public static void main(String[] args) {
-        System.out.println(new PolishStrategy().calculate(String.valueOf(1.213 * (3.554 + 2.366))));
+        try {
+            System.out.println(new PolishStrategy().calculate("1.213 * (3.554$ + 2.366$)"));
+        }
+        catch (Exception exc){
+
+            System.out.println(exc.getMessage());
+        }
     }
 }
